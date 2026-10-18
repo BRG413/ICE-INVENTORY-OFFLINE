@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ICE Offline">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}
 #ice-who{position:fixed;inset:0;z-index:50;background:rgba(5,12,16,.55);display:grid;place-items:center;padding:16px}#ice-who form{background:var(--panel,#fff);color:var(--ink,#14212b);padding:22px;max-width:420px;width:100%;display:grid;gap:12px;border-radius:4px}#ice-who h2{margin:0}#ice-who p{margin:0;color:var(--muted,#5b6b77)}#ice-who input{font:16px var(--f-body,sans-serif);padding:12px;border:1px solid var(--line,#d8dfe4);border-radius:3px;background:var(--panel,#fff);color:var(--ink,#14212b)}#ice-who .btn{min-height:46px;font-size:16px}</style>
-<script src="shim.js?v=f62071f2"></script><script src="vendors_starter.js?v=f62071f2"></script></head><body>
+<script src="shim.js?v=9a4ea25e"></script><script src="vendors_starter.js?v=9a4ea25e"></script></head><body>
 <title>ICE Inventory Offline</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -382,7 +382,7 @@ main>section{min-width:0}
         <div class="controls" style="margin-top:12px"><button class="btn primary" id="v-save">Save vendor</button><button class="btn" id="v-cancel">Cancel</button></div>
       </div>
       <div class="panel">
-        <div class="panel-h"><div><h2>Vendors</h2><p class="sub">Every vendor delivering to the store. Deliveries and dollars update from posted receiving tickets.</p></div><div class="controls"><button class="btn" id="v-copy">Copy as CSV</button><button class="btn primary" id="v-new">Add vendor</button></div></div>
+        <div class="panel-h"><div><h2>Vendors</h2><p class="sub">Every vendor delivering to the store. Deliveries and dollars update from posted receiving tickets.</p></div><div class="controls"><button class="btn" id="v-sync" hidden>Update vendors</button><button class="btn" id="v-copy">Copy as CSV</button><button class="btn primary" id="v-new">Add vendor</button></div></div>
         <div class="controls"><input type="search" id="v-q" placeholder="Find a vendor" aria-label="Find vendor"><select id="v-show" aria-label="Show"><option value="1">Active</option><option value="">All</option><option value="0">Inactive</option></select></div>
         <div class="tscroll"><table id="v-table"><thead><tr><th>Vendor</th><th>Vendor #</th><th>Type</th><th>Rep</th><th>Phone</th><th>Delivers</th><th>Terms</th><th class="num">Deliveries</th><th class="num">Received $</th><th class="num">Last delivery</th><th></th></tr></thead><tbody></tbody></table></div>
       </div>
@@ -666,6 +666,14 @@ function renderVendors(){const q=$('v-q').value.trim().toLowerCase(),f=$('v-show
   const st=$('v-starter');if(st)st.onclick=async()=>{if(!db)return;st.disabled=true;st.textContent='Loading…';const now=new Date().toISOString();
     for(const v of window.__ICE_STARTER_VENDORS){const {id,...body}=v;try{await db.collection('vendors').doc(id).set(Object.assign(body,{createdBy:myId,createdAt:now,updatedBy:myId,updatedAt:now}))}catch(e){}}
     say(`Loaded ${window.__ICE_STARTER_VENDORS.length} vendors. Edit or remove any that don't deliver to this store.`)}}
+if(window.__ICE_STARTER_VENDORS){const sy=$('v-sync');sy.hidden=false;sy.onclick=async()=>{if(!db)return;
+  const by=new Map([...vendors.values()].map(v=>[(v.name||'').trim().toLowerCase(),v]));let n=0;const now=new Date().toISOString();
+  const todo=window.__ICE_STARTER_VENDORS.map(s=>[s,vendors.get(s.id)||by.get(s.name.trim().toLowerCase())]).filter(([s,v])=>v&&((v.num||'')!==(s.num||'')||(v.phone||'')!==(s.phone||'')||(v.address||'')!==(s.address||'')));
+  if(!todo.length){say('Vendors are already up to date.');return}
+  if(!confirm('Update vendor # / phone / address on '+todo.length+' vendors to the latest list? Your other edits are kept.'))return;
+  sy.disabled=true;sy.textContent='Updating…';
+  for(const [s,v] of todo){try{await db.collection('vendors').doc(v.id).update({num:s.num,oldNum:v.num!==s.num?(v.num||''):(v.oldNum||''),phone:s.phone||'',address:s.address||'',updatedBy:myId,updatedAt:now});n++}catch(e){}}
+  sy.disabled=false;sy.textContent='Update vendors';say(`Updated ${n} vendors.`)}}
 $('v-q').addEventListener('input',renderVendors);$('v-show').addEventListener('change',renderVendors);
 
 // ---------- tables ----------
