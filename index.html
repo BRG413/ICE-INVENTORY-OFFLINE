@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ICE Offline">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}
 #ice-who{position:fixed;inset:0;z-index:50;background:rgba(5,12,16,.55);display:grid;place-items:center;padding:16px}#ice-who form{background:var(--panel,#fff);color:var(--ink,#14212b);padding:22px;max-width:420px;width:100%;display:grid;gap:12px;border-radius:4px}#ice-who h2{margin:0}#ice-who p{margin:0;color:var(--muted,#5b6b77)}#ice-who input{font:16px var(--f-body,sans-serif);padding:12px;border:1px solid var(--line,#d8dfe4);border-radius:3px;background:var(--panel,#fff);color:var(--ink,#14212b)}#ice-who .btn{min-height:46px;font-size:16px}</style>
-<script src="shim.js?v=9a4ea25e"></script><script src="vendors_starter.js?v=9a4ea25e"></script></head><body>
+<script src="shim.js?v=60f7d8b4"></script><script src="vendors_starter.js?v=60f7d8b4"></script></head><body>
 <title>ICE Inventory Offline</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -179,7 +179,8 @@ details.rc[data-void="1"] summary{opacity:.55;text-decoration:line-through}
   .scan{flex-wrap:wrap}.scan #scan{flex:1 1 100%}.scan #kbd{flex:0 0 52px}.scan #scanQty{flex:1 1 auto;width:auto}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px)}
   .ticket{grid-template-columns:minmax(0,1fr) auto auto;align-items:center;padding:8px max(12px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px))}
-  .ticket:not(.open)>:not(#tk-mini):not(#tk-more):not(#post){display:none!important}
+  .ticket:not(.open)>:not(#tk-mini):not(#tk-more):not(#post):not(#printLast){display:none!important}
+  .ticket #printLast{grid-column:1/-1;padding:10px;font-weight:600}
   #tk-mini{display:grid;gap:0;min-width:0;font-size:13px}#tk-mini span{font-size:12px}
   #tk-more{display:block;padding:8px 10px}
   .ticket #post{grid-column:auto;padding:10px 14px;font-size:14px}
