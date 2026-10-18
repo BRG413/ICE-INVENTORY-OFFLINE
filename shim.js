@@ -5,7 +5,7 @@
   const open=()=>new Promise((res,rej)=>{const r=indexedDB.open(DBN,1);r.onupgradeneeded=()=>r.result.createObjectStore(ST);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
   const tx=(mode,fn)=>new Promise((res,rej)=>{const t=idb.transaction(ST,mode);const s=t.objectStore(ST);fn(s);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)});
   const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
-  let pend=false;const notify=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;subs.forEach(f=>{try{f()}catch(e){console.error(e)}})},0)};
+  let pend=false;const notify=()=>{if(pend)return;pend=true;setTimeout(()=>{pend=false;subs.forEach(f=>{try{f()}catch(e){console.error(e)}})},80)};
   const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,10);
   async function put(k,v){mem.set(k,clone(v));await tx('readwrite',s=>s.put(clone(v),k));notify()}
   async function del(k){mem.delete(k);await tx('readwrite',s=>s.delete(k));notify()}

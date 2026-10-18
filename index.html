@@ -3,7 +3,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="ICE Offline">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}
 #ice-who{position:fixed;inset:0;z-index:50;background:rgba(5,12,16,.55);display:grid;place-items:center;padding:16px}#ice-who form{background:var(--panel,#fff);color:var(--ink,#14212b);padding:22px;max-width:420px;width:100%;display:grid;gap:12px;border-radius:4px}#ice-who h2{margin:0}#ice-who p{margin:0;color:var(--muted,#5b6b77)}#ice-who input{font:16px var(--f-body,sans-serif);padding:12px;border:1px solid var(--line,#d8dfe4);border-radius:3px;background:var(--panel,#fff);color:var(--ink,#14212b)}#ice-who .btn{min-height:46px;font-size:16px}</style>
-<script src="shim.js?v=2740dd28"></script></head><body>
+<script src="shim.js?v=0047626c"></script><script src="vendors_starter.js?v=0047626c"></script></head><body>
 <title>ICE Inventory Offline</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -661,8 +661,11 @@ function renderVendors(){const q=$('v-q').value.trim().toLowerCase(),f=$('v-show
   const list=[...vendors.values()].filter(v=>(f===''||(f==='1')===(v.active!==false))&&(!q||[v.name,v.num,v.rep,v.phone,v.address].some(x=>(x||'').toLowerCase().includes(q)))).sort((a,b)=>a.name.localeCompare(b.name));
   const tb=document.querySelector('#v-table tbody');
   tb.innerHTML=list.length?list.map(v=>{const st=vStats.get(v.id)||{n:0,amt:0,last:null};return `<tr style="cursor:default"><td><strong>${esc(v.name)}</strong>${v.active===false?' <span class="pill p-mute">Inactive</span>':''}${v.address?`<div class="meta">${esc(v.address)}</div>`:''}${v.notes?`<div class="meta">${esc(v.notes)}</div>`:''}</td><td class="sku">${esc(v.num||'—')}</td><td>${esc(v.type||'')}</td><td>${esc(v.rep||'—')}</td><td>${esc(v.phone||'—')}</td><td>${esc((v.days||[]).length===7?'Daily':(v.days||[]).join(' ')||'—')}</td><td>${esc(v.terms||'')}</td><td class="num">${st.n}</td><td class="num">${fmt$(st.amt)}</td><td class="num">${st.last?when(st.last):'—'}</td><td><button class="btn" data-ve="${esc(v.id)}">Edit</button></td></tr>`}).join('')
-    :`<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px;cursor:default">${vendors.size?'No vendors match.':'No vendors yet. Add each company that delivers to the store, then pick them on the Receiving tab.'}</td></tr>`;
-  tb.querySelectorAll('[data-ve]').forEach(b=>b.onclick=()=>{vReturn=false;openVendor(vendors.get(b.dataset.ve))})}
+    :`<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px;cursor:default">${vendors.size?'No vendors match.':'No vendors yet. Add each company that delivers to the store, then pick them on the Receiving tab.'+(window.__ICE_STARTER_VENDORS?'<div style="margin-top:12px"><button class="btn primary" id="v-starter">Load starter vendors ('+window.__ICE_STARTER_VENDORS.length+')</button></div>':'')}</td></tr>`;
+  tb.querySelectorAll('[data-ve]').forEach(b=>b.onclick=()=>{vReturn=false;openVendor(vendors.get(b.dataset.ve))});
+  const st=$('v-starter');if(st)st.onclick=async()=>{if(!db)return;st.disabled=true;st.textContent='Loading…';const now=new Date().toISOString();
+    for(const v of window.__ICE_STARTER_VENDORS){const {id,...body}=v;try{await db.collection('vendors').doc(id).set(Object.assign(body,{createdBy:myId,createdAt:now,updatedBy:myId,updatedAt:now}))}catch(e){}}
+    say(`Loaded ${window.__ICE_STARTER_VENDORS.length} vendors. Edit or remove any that don't deliver to this store.`)}}
 $('v-q').addEventListener('input',renderVendors);$('v-show').addEventListener('change',renderVendors);
 
 // ---------- tables ----------
